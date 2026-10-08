@@ -1,0 +1,123 @@
+{% extends 'layout.html' %}
+{% block content %}
+{% load static %}
+<link href="{% static 'css/user-view.css' %}" rel="stylesheet">
+<div class="py-5 text-center">
+  <h2>编辑用户信息</h2>
+</div>
+
+<div class="row g-5 justify-content-center">
+  <div class="col-md-8 col-lg-6">
+    <form id="userForm" enctype="multipart/form-data">
+      <!-- 用户名输入框 -->
+      <div class="mb-3">
+        <label for="username" class="form-label">用户名</label>
+        <input type="text" class="form-control" id="username" name="username" value="{{ user.username }}" disabled>
+      </div>
+
+      <!-- 添加时间输入框 -->
+      <div class="mb-3">
+        <label for="addtime" class="form-label">添加时间</label>
+        <input type="datetime-local" class="form-control" id="addtime" name="addtime" value="{{ user.addtime|date:'Y-m-d\\TH:i' }}" disabled>
+      </div>
+
+      <!-- 邮箱输入框 -->
+      <div class="mb-3">
+        <label for="email" class="form-label">邮箱</label>
+        <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
+      </div>
+
+      <!-- 电话输入框 -->
+      <div class="mb-3">
+        <label for="phone" class="form-label">电话</label>
+        <input type="text" class="form-control" id="phone" name="phone" value="{{ user.phone }}" required>
+      </div>
+
+      <!-- 个人信息输入框 -->
+      <div class="mb-3">
+        <label for="info" class="form-label">个人信息</label>
+        <textarea class="form-control" id="info" name="info" rows="4">{{ user.info }}</textarea>
+      </div>
+
+      <!-- 头像上传 -->
+      <div class="mb-3">
+        <label for="avatar" class="form-label">头像上传</label>
+        <input type="file" class="form-control" id="avatar" name="avatar" accept="image/*">
+      </div>
+
+      <!-- 头像预览 -->
+      {% if user.face %}
+        <div class="mb-3 text-center">
+          <p>当前头像:</p>
+          <img src="{% static user.face %}" alt="用户头像" class="rounded-circle rounded-preview">
+        </div>
+      {% endif %}
+
+      <!-- 提交按钮 -->
+      <button type="button" class="w-100 btn btn-primary btn-lg" id="saveButton">保存更改</button>
+      <!-- 修改密码按钮 -->
+      <a href="/myapp/change_password" class="w-100 btn btn-secondary btn-lg">修改密码</a>
+    </form>
+  </div>
+</div>
+
+<script>
+  document.getElementById('saveButton').addEventListener('click', async function(event) {
+    event.preventDefault();
+
+    const csrfToken = '{{ csrf_token }}';
+
+    // 创建 FormData 对象并将表单数据添加到其中
+    const formData = new FormData();
+    formData.append("email", document.getElementById("email").value);
+    formData.append("phone", document.getElementById("phone").value);
+    formData.append("info", document.getElementById("info").value);
+
+    // 如果选择了头像文件，则将其添加到 FormData
+    const avatarFile = document.getElementById("avatar").files[0];
+    if (avatarFile) {
+      formData.append("avatar", avatarFile);
+    }
+
+    fetch("/myapp/user_view/", {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': csrfToken
+      },
+      body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        alert(data.message); // 成功提示
+        // 更新页面上的用户信息
+        document.getElementById('email').value = data.user.email;
+        document.getElementById('phone').value = data.user.phone;
+        document.getElementById('info').value = data.user.info;
+        
+        // 更新头像预览
+        if (data.user.face) {
+          let avatarPreview = document.querySelector('.rounded-preview');
+          if (avatarPreview) {
+            avatarPreview.src = "{% static '' %}" + data.user.face;
+          } else {
+            // 如果头像预览不存在，则创建一个
+            avatarPreview = document.createElement('img');
+            avatarPreview.src = "{% static '' %}" + data.user.face;
+            avatarPreview.alt = '用户头像';
+            avatarPreview.className = 'rounded-circle rounded-preview';
+            document.querySelector('.text-center').appendChild(avatarPreview);
+          }
+        }
+      } else {
+        alert(data.message); // 错误提示
+      }
+    })
+    .catch(error => {
+      alert("请求失败，请稍后重试！");
+      console.error('Error:', error);
+    });
+  });
+</script>
+
+{% endblock %}

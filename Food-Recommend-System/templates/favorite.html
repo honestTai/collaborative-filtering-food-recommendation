@@ -1,0 +1,68 @@
+{% extends 'layout.html' %}
+{% block content %}
+{% load static %}
+<link href="{% static 'css/favorite.css' %}" rel="stylesheet">
+
+<div class="container-fluid my-5">
+    <h2 class="mb-4">我的收藏</h2>
+
+    <div class="list-group">
+        {% for food in foods %}
+            <div class="list-group-item d-flex align-items-center">
+                <!-- 小图片部分 -->
+                <img src="{{ food.imgurl }}" alt="{{ food.foodname }}" class="img-fluid" style="width: 50px; height: 50px; object-fit: cover; margin-right: 15px;">
+                
+                <!-- 食物名称和简介部分 -->
+                <div style="flex-grow: 1;">  <!-- 使用 flex-grow 让这部分占据剩余空间 -->
+                    <h5 class="mb-1">{{ food.foodname }}</h5>
+                    <p class="mb-1 text-truncate" style="max-width: 300px;">{{ food.recommend }}</p>  <!-- 假设有一个 recommend 字段，使用 text-truncate 控制溢出文本 -->
+                </div>
+                
+                <!-- 查看详情按钮 -->
+                <a href="/myapp/detail/{{ food.id }}" class="btn btn-primary">
+                    查看详情
+                </a>
+            </div>
+        {% empty %}
+            <p class="text-muted">暂无收藏的食物。</p>
+        {% endfor %}
+    </div>
+
+    <!-- 分页 -->
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            {% if foods.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ foods.previous_page_number }}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            {% endif %}
+
+            {% with page_range=foods.paginator.page_range %}
+                {% for i in page_range %}
+                    {% if i >= foods.number|add:-2 and i <= foods.number|add:2 %}
+                        {% if foods.number == i %}
+                            <li class="page-item active" aria-current="page">
+                                <span class="page-link">{{ i }}</span>
+                            </li>
+                        {% else %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                            </li>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+            {% endwith %}
+
+            {% if foods.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ foods.next_page_number }}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
+{% endblock %}

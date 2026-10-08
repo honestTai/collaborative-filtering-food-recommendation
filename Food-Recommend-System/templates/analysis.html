@@ -1,0 +1,333 @@
+{% extends 'layout.html' %}
+{% block content %}
+{% load static %}
+<link href="{% static 'css/analysis.css' %}" rel="stylesheet">
+
+<div class="py-5 text-center">
+  <h2>数据分析</h2>
+</div>
+
+<div class="row g-5 justify-content-center">
+  <div class="col-md-8 col-lg-6">
+    <form id="dataAnalysisForm">
+      <!-- 数据选择框 -->
+      <div class="mb-3">
+        <label for="data_source" class="form-label">选择数据源</label>
+        <select class="form-select" id="data_source" name="data_source" required>
+          <option value="1">菜品分析</option>
+          <option value="2">评论分析</option>
+          <option value="3">收藏分析</option>
+          <option value="4">词云分析</option> <!-- 新增词云分析 -->
+        </select>
+      </div>
+
+      <!-- 提交按钮 -->
+      <button type="button" class="w-100 btn btn-primary btn-lg" id="loadDataButton">加载数据</button>
+    </form>
+  </div>
+</div>
+
+<!-- ECharts容器 -->
+<div id="echartContainer" style="height: 600px; width: 100%; margin-top: 50px; position: relative;">
+  <!-- 初始未选择时的提示文本 -->
+  <div id="placeholder" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 20px; color: #888; font-weight: bold;">
+    请选择您要分析的数据
+  </div>
+</div>
+
+<!-- 词云类型选择按钮 -->
+<div id="foodTypeButtons" class="text-center" style="margin-top: 20px; display: none;">
+  <button class="btn btn-outline-primary" onclick="filterWordCloud('云南')">云南</button>
+  <button class="btn btn-outline-success" onclick="filterWordCloud('四川')">四川</button>
+  <button class="btn btn-outline-danger" onclick="filterWordCloud('粤菜')">粤菜</button>
+  <button class="btn btn-outline-warning" onclick="filterWordCloud('鲁菜')">鲁菜</button>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/echarts@4.9.0/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts-wordcloud@1.1.0/dist/echarts-wordcloud.min.js"></script> <!-- 词云插件 -->
+<script>
+  let chartInstance = null;
+  let currentFoodType = 'all'; // 当前选择的foodtype，默认显示所有
+
+  // 初始化图表
+  function initChart() {
+    const placeholder = document.getElementById('placeholder');
+    if (placeholder) {
+      chartInstance = echarts.init(document.getElementById('echartContainer'));
+
+      // 默认空图表，待数据加载后更新
+      chartInstance.setOption({
+        title: {
+          text: '请选择您要分析的数据',
+          left: 'center',
+          top: 'center',
+          textStyle: {
+            color: '#888',
+            fontSize: 20,
+            fontWeight: 'bold'
+          }
+        },
+        tooltip: {},
+        series: [{
+          type: 'pie',
+          radius: '50%',
+          data: []
+        }],
+        legend: {
+          show: true,
+          left: 'center',
+          bottom: "10%",
+          itemWidth: 15,
+          itemHeight: 15,
+          textStyle: {
+            fontSize: 14
+          }
+        }
+      });
+
+      // 隐藏提示文本
+      placeholder.style.display = 'none';
+    }
+  }
+
+  // 加载数据并更新图表
+  function loadChartData(dataSource) {
+    const data = getDataBySource(dataSource); // 获取对应数据源的数据
+
+    // 清空之前的图表内容，避免标注残留
+    chartInstance.clear();
+
+    // 更新图表配置
+    const chartOption = getChartOption(dataSource, data);
+
+    // 设置图表配置
+    chartInstance.setOption(chartOption);
+
+    // 隐藏提示文本
+    const placeholder = document.getElementById('placeholder');
+    if (placeholder) {
+      placeholder.style.display = 'none';
+    }
+
+    // 显示词云分析按钮（只在词云分析时显示）
+    const foodTypeButtons = document.getElementById('foodTypeButtons');
+    if (dataSource === "4") {
+      foodTypeButtons.style.display = 'block';
+    } else {
+      foodTypeButtons.style.display = 'none';
+    }
+  }
+
+  // 获取数据源对应的数据
+  function getDataBySource(source) {
+    const commentData = {{ comment|safe }};
+    const collectData = {{ collect|safe }};
+    const cateData = {{ cate|safe }};
+    const wordcloudData = {{ wordcloud|safe }};  // 新增词云数据
+
+    if (!commentData || !collectData || !cateData || !wordcloudData) {
+      console.error("数据获取失败，评论数据、收藏数据、菜品数据或词云数据为空");
+      return { pieData: [] };
+    }
+
+    if (source === "1") { // 菜品分析
+      return {
+        pieData: cateData[0].map((num, index) => ({
+          value: num,
+          name: cateData[1][index]
+        }))
+      };
+    } else if (source === "2") { // 评论分析
+      return {
+        barData: commentData[0].map((num, index) => ({
+          value: num,
+          name: commentData[1][index]
+        }))
+      };
+    } else if (source === "3") { // 收藏分析
+      return {
+        lineData: collectData[0].map((num, index) => ({
+          value: num,
+          name: collectData[1][index]
+        }))
+      };
+    } else if (source === "4") { // 词云分析
+
+
+        // 创建一个包含 foodtype 的新数组
+      const wordcloudWithFoodType = wordcloudData[0].map((name, index) => ({
+          name: wordcloudData[0][index],
+          value: wordcloudData[1][index],
+          foodtype: wordcloudData[2][index]
+      }));
+
+      // 过滤数据
+      const filteredData = wordcloudWithFoodType.filter(item => 
+        currentFoodType === 'all' || item.foodtype === currentFoodType
+      );
+
+      console.log("过滤后的词云数据:", filteredData);
+
+      // 返回过滤后的数据
+      return {
+        wordCloudData: filteredData.map((item) => ({
+          name: item.name,
+          value: item.value,
+          foodtype: item.foodtype
+        }))
+      };
+    }
+    return { pieData: [] };
+  }
+
+  // 根据数据源生成不同的图表配置
+  function getChartOption(source, data) {
+    let option = {
+      title: {
+        text: '数据分析',
+        left: 'center',
+        top: 'top',
+        textStyle: {
+          color: '#333',
+          fontSize: 24,
+          fontWeight: 'bold'
+        }
+      },
+      tooltip: {
+        trigger: 'item'
+      },
+      toolbox: {
+        show: true,
+        orient: 'vertical',
+        left: 'right',
+        top: 'center',
+        feature: {
+          saveAsImage: {}
+        }
+      },
+      legend: {
+        show: true,
+        left: 'center',
+        bottom: 0, // 调整位置，避免图例覆盖图表
+        itemWidth: 20, // 增加图例项的宽度
+        itemHeight: 20, // 增加图例项的高度
+        padding: [20, 0, 0, 0], // 增加图例上方的间距
+        textStyle: {
+          fontSize: 14
+        }
+      },
+    };
+
+    if (source === "1") { // 菜品分析 - 饼图
+      option.series = [{
+        name: '菜品类别',
+        type: 'pie',
+        radius: '50%',
+        data: data.pieData,
+        emphasis: {
+          itemStyle: {
+            shadowBlur: 10,
+            shadowOffsetX: 0,
+            shadowColor: 'rgba(0, 0, 0, 0.5)'
+          }
+        }
+      }];
+    } else if (source === "2") { // 评论分析 - 柱状图
+      const colors = ['#FF6347', '#FFD700', '#32CD32', '#1E90FF', '#8A2BE2', '#FF4500', '#00FA9A'];
+      option.xAxis = {
+        type: 'category',
+        data: data.barData.map(item => item.name),
+        axisLabel: {
+          interval: 0,
+          rotate: 20,
+          margin: 5,
+          fontSize: 10
+        }
+      };
+      option.yAxis = {
+        type: 'value'
+      };
+      option.series = [{
+        name: '评论数量',
+        type: 'bar',
+        data: data.barData.map((item, index) => ({
+          value: item.value,
+          itemStyle: {
+            color: colors[index % colors.length]
+          },
+          label: {
+            show: true,
+            position: 'top',
+            formatter: '{c}',
+            fontSize: 14
+          }
+        })),
+        barWidth: '40%',
+      }];
+    } else if (source === "3") { // 收藏分析 - 折线图
+      option.xAxis = {
+        type: 'category',
+        data: data.lineData.map(item => item.name)
+      };
+      option.yAxis = {
+        type: 'value'
+      };
+      option.series = [{
+        name: '收藏数量',
+        type: 'line',
+        data: data.lineData.map(item => ({
+          value: item.value,
+          name: item.name
+        })),
+        smooth: true,
+        lineStyle: {
+          color: '#66BB6A'
+        },
+        label: {
+          show: true,
+          position: 'top',
+          formatter: function (params) {
+            return params.name + ': ' + params.value;
+          },
+          fontSize: 12,
+          color: '#333',
+          rotate: 45,
+          offset: [0, 10]
+        }
+      }];
+    } else if (source === "4") { // 词云分析 - 词云图
+      option.series = [{
+        type: 'wordCloud',
+        sizeRange: [10, 80],
+        rotationRange: [-90, 90],
+        gridSize: 10,
+        data: data.wordCloudData.map(item => ({
+          name: item.name,
+          value: item.value,
+        }))
+      }];
+    }
+
+    return option;
+}
+
+
+  // 筛选词云数据
+  function filterWordCloud(type) {
+    console.log("过滤类型: ", type);  // 添加日志检查是否进入函数
+    currentFoodType = type;
+    const selectedSource = document.getElementById('data_source').value;
+    loadChartData(selectedSource);
+  }
+
+  // 页面加载时初始化图表
+  window.onload = function() {
+    initChart();
+    document.getElementById('loadDataButton').addEventListener('click', function() {
+      const selectedSource = document.getElementById('data_source').value;
+      loadChartData(selectedSource);
+    });
+  };
+</script>
+{% endblock %}

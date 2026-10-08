@@ -1,0 +1,84 @@
+main {
+  margin-top: 10px;
+}
+
+/* 背景样式 */
+.bg-custom {
+  background-image: url('/static/image/pictrues/image.png'); /* 确保路径正确 */
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+
+/* 添加样式以实现图片圆角 */
+.container-fluid {
+  border-radius: 15px; /* 圆角大小，可以根据需要调整 */
+  overflow: hidden; /* 确保圆角效果正确显示 */
+}
+
+.bd-placeholder-img {
+  font-size: 1.125rem;
+  text-anchor: middle;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+}
+
+@media (min-width: 768px) {
+  .bd-placeholder-img-lg {
+    font-size: 3.5rem;
+  }
+}
+
+.b-example-divider {
+  height: 3rem;
+  background-color: rgba(0, 0, 0, .1);
+  border: solid rgba(0, 0, 0, .15);
+  border-width: 1px 0;
+  box-shadow: inset 0 .5em 1.5em rgba(0, 0, 0, .1), inset 0 .125em .5em rgba(0, 0, 0, .15);
+}
+
+.b-example-vr {
+  flex-shrink: 0;
+  width: 1.5rem;
+  height: 100vh;
+}
+
+.nav-scroller {
+  position: relative;
+  z-index: 2;
+  height: 2.75rem;
+  overflow-y: hidden;
+}
+
+.nav-scroller .nav {
+  display: flex;
+  flex-wrap: nowrap;
+  padding-bottom: 1rem;
+  margin-top: -1px;
+  overflow-x: auto;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.hover-effect {
+  transition: transform 0.3s; /* 添加平滑过渡 */
+}
+
+.hover-effect:hover {
+  transform: scale(1.05); /* 鼠标悬停时放大 */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* 添加阴影效果 */
+}
+
+.card-img-top {
+  border-radius: 15px 15px 0 0; /* 只对顶部图片添加圆角 */
+}
+
+a {
+  color: black; /* 设置链接文本的颜色 */
+  text-decoration: none; /* 移除下划线 */
+}
+
+a:hover {
+  text-decoration: none; /* 鼠标悬停时保持无下划线 */
+}

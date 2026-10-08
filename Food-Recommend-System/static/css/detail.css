@@ -1,0 +1,41 @@
+.card {
+    background-color: #ffffff;
+}
+
+.card-title {
+    font-weight: bold;
+    color: #333;
+}
+
+.card-text {
+    color: #555;
+}
+
+.wishlist-btn {
+    width: 100%;
+    margin-top: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+.wishlist-btn:hover {
+    background-color: #ffcccb;
+}
+
+.add-comment {
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+}
+
+textarea.form-control {
+    resize: none;
+    border: 1px solid #ccc;
+}
+
+textarea.form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+.list-group-item {
+    background-color: #f8f9fa;
+}

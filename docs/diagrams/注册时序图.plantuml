@@ -1,0 +1,32 @@
+@startuml
+actor User
+entity "Client (Frontend)" as Frontend
+entity "Django Server" as Server
+entity "Database (Users)" as DB
+
+User -> Frontend : 提交用户名、邮箱、密码和确认密码
+Frontend -> Server : POST 请求 (username, email, password, confirmpassword)
+Server -> Server : 解析请求数据
+Server -> Server : 检查输入（空值、用户名格式、密码强度等）
+alt 输入无效
+    Server -> Frontend : 返回错误消息
+else 输入有效
+    Server -> DB : 查询用户名是否存在
+    DB -> Server : 返回查询结果
+    alt 用户名已存在
+        Server -> Frontend : 返回 "用户名已被占用" 消息
+    else
+        Server -> DB : 查询邮箱是否已注册
+        DB -> Server : 返回查询结果
+        alt 邮箱已注册
+            Server -> Frontend : 返回 "邮箱已被注册" 消息
+        else
+            Server -> Server : 加密密码
+            Server -> DB : 创建新用户并保存
+            DB -> Server : 用户保存成功
+            Server -> Frontend : 返回 "注册成功" 消息
+        end
+    end
+end
+
+@enduml

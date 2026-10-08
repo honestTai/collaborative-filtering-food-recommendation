@@ -1,0 +1,27 @@
+@startuml
+actor User
+entity "Client (Frontend)" as Frontend
+entity "Django Server" as Server
+entity "Database (Users)" as DB
+
+User -> Frontend : 提交用户名和密码
+Frontend -> Server : POST 请求 (username, password)
+Server -> Server : 解析请求数据
+Server -> Server : 检查输入 (用户名和密码是否为空)
+Server -> DB : 查询用户 (Users.objects.get(username=username))
+DB -> Server : 返回用户信息
+Server -> Server : 检查密码 (check_password(password, user.password))
+alt 密码正确
+    Server -> Frontend : 返回 登录成功 消息
+    Server -> Server : 将用户 ID 存入 session
+else 密码错误
+    Server -> Frontend : 返回 "用户名或密码错误" 消息
+end
+alt 请求格式错误
+    Server -> Frontend : 返回 "请求数据格式错误" 消息
+end
+alt 其他异常
+    Server -> Frontend : 返回 "登录失败，请稍后重试" 消息
+end
+
+@enduml

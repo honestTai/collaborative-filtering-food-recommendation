@@ -1,0 +1,22 @@
+@startuml
+actor User
+entity "爬虫脚本" as Crawler
+entity "CSV 文件" as CSV
+entity "网页" as Page
+
+User -> Crawler : 运行爬虫脚本
+Crawler -> Crawler : 切换工作目录
+Crawler -> CSV : 打开或创建 CSV 文件
+Crawler -> Page : 请求网页数据
+Page -> Crawler : 返回网页内容
+Crawler -> Crawler : 解析网页数据
+Crawler -> CSV : 写入数据到 CSV 文件
+alt 异常情况
+    Crawler -> Crawler : 捕获异常
+    Crawler -> User : 显示错误信息
+end
+Crawler -> Page : 请求下一个页面
+Page -> Crawler : 返回下一个页面内容
+Crawler -> CSV : 重复写入数据
+Crawler -> User : 完成爬取
+@enduml

@@ -1,0 +1,15 @@
+@startuml
+actor User
+entity "Django 应用" as App
+entity "数据库" as DB
+
+User -> App : 发起搜索请求 (search)
+App -> App : 获取搜索关键词 (search_query)
+App -> DB : 获取所有菜品 (Foods.objects.all())
+alt 搜索关键词存在
+    App -> DB : 执行筛选操作 (根据 foodname 和 recommend 字段)
+    DB -> App : 返回筛选后的菜品列表
+end
+App -> App : 执行分页操作 (Paginator)
+App -> User : 返回分页后的搜索结果 (page_obj)
+@enduml

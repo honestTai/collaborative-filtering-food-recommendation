@@ -1,0 +1,182 @@
+/* 基本样式 */
+body {
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #f8f9fa, #e3f2fd); /* 渐变背景 */
+  margin: 0;
+  padding: 0;
+  color: #555;
+}
+
+main {
+  margin-top: 10px;
+}
+
+/* 轮播图区域 */
+.carousel-inner .bd-placeholder-img {
+  background-color: #777;
+  background-size: cover;
+  background-position: center;
+  height: 50vh;
+  border-radius: 10px; /* 轮播图圆角 */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* 轮播图阴影 */
+}
+
+.carousel-caption h1 {
+  text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.5);
+  font-size: 3rem;
+  font-weight: bold;
+  color: #fff;
+}
+
+.carousel-caption p {
+  font-size: 1.25rem;
+  font-weight: 400;
+  color: #fff;
+}
+
+/* 卡片样式 */
+.bd-placeholder-img {
+  border-radius: 50%;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* 卡片阴影 */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.bd-placeholder-img:hover {
+  transform: scale(1.05); /* 鼠标悬停时放大 */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3); /* 加深阴影 */
+}
+
+
+
+/* 按钮样式 */
+.btn-primary {
+  background: linear-gradient(45deg, #ff6f61, #ff9e2c);
+  border: none;
+  border-radius: 30px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(45deg, #ff9e2c, #ff6f61);
+  transform: scale(1.05);
+}
+
+.btn-secondary {
+  color: #fff;
+  border-radius: 30px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  transition: transform 0.2s, background-color 0.3s;
+}
+
+.btn-secondary:hover {
+  background-color: #ff9e2c;
+  transform: scale(1.05);
+}
+
+/* 分割线样式 */
+.featurette-divider {
+  border: 0;
+  height: 1px;
+  background-color: #ddd;
+  margin: 40px 0;
+}
+
+/* FEATURETTES 内容区域 */
+.featurette {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 40px;
+}
+
+.featurette .featurette-heading {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.featurette .lead {
+  font-size: 1.25rem;
+  color: #555;
+}
+
+.featurette-image {
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.featurette-image:hover {
+  transform: scale(1.05); /* 鼠标悬停时放大 */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3); /* 加深阴影 */
+}
+
+.featurette .row {
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* 页脚样式 */
+footer {
+  background: linear-gradient(135deg, #f8f9fa, #e3f2fd);
+  padding: 20px 0;
+  text-align: center;
+  color: #555;
+  font-size: 0.9rem;
+}
+
+footer a {
+  text-decoration: none;
+  color: #007bff;
+  transition: color 0.3s ease;
+}
+
+footer a:hover {
+  color: #0056b3;
+}
+
+footer p {
+  margin: 0;
+}
+
+/* 响应式设计调整 */
+@media (max-width: 768px) {
+  /* 轮播图调整 */
+  .carousel-inner .bd-placeholder-img {
+    height: 35vh; /* 在小屏幕上减小轮播图的高度 */
+  }
+
+  .carousel-caption h1 {
+    font-size: 2rem; /* 小屏幕上减少标题字体 */
+  }
+
+  .carousel-caption p {
+    font-size: 1rem; /* 小屏幕上调整描述文字的大小 */
+  }
+
+  .container.marketing {
+    padding: 0 15px; /* 小屏幕上调整容器内边距 */
+  }
+
+  .container .col-lg-3 {
+    width: 100%;
+    margin-bottom: 20px;
+  }
+
+  .featurette-image {
+    height: 300px;
+  }
+
+  .featurette .lead {
+    font-size: 1.1rem; /* 调整文本大小 */
+  }
+}
+
+
+.container {
+  max-width: 960px;
+  margin: auto;
+  padding: 0 15px; /* Add padding for small screens */
+}

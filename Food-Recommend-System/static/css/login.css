@@ -1,0 +1,45 @@
+html, body {
+  height: 100%;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #007bff; /* 蓝色背景 */
+  margin: 0;
+  flex-direction: column;
+}
+
+.container {
+  width: 100%;
+  max-width: 400px;
+  padding: 30px;
+  background-color: white;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+}
+
+.page-title {
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #fff; /* 白色字体 */
+}
+
+.title {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 1.25rem;
+  color: #333;
+}
+
+.form-control:focus {
+  box-shadow: none;
+  border-color: #0056b3; /* 深蓝色 */
+}
+
+.register-link {
+  font-size: 0.9em;
+}

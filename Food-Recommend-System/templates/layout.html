@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>美食推荐仪表盘 · Bootstrap v5.3</title>
+
+    {% load static %}
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/layout.css' %}" rel="stylesheet"> <!-- 自定义样式 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"> <!-- Bootstrap Icons -->
+</head>
+<body>
+    <header class="navbar navbar-expand-lg navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+            <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-6" href="#">美食推荐系统</a>
+            <!-- 搜索框 -->
+            <form class="d-none d-md-flex" style="width: 200px; margin-left: auto; margin-right: 20px;" method="get" action="{% url 'search_list' %}">
+                <div class="input-group">
+                    <!-- 搜索图标按钮 -->
+                    <button class="input-group-text bg-secondary text-light border-0" type="submit" style="cursor: pointer;">
+                        <i class="bi bi-search"></i>
+                    </button>
+                    <!-- 输入框，提交时会将值传递给 'search' 参数 -->
+                    <input type="text" name="search" class="form-control" placeholder="搜索美食..." aria-label="搜索" style="padding: 4px 8px; font-size: 0.9rem;">
+                </div>
+            </form>
+    
+            <!-- 用户信息下拉菜单 -->
+            <ul class="navbar-nav">
+                <li class="nav-item dropdown">
+                    <button class="btn btn-dark dropdown-toggle d-flex align-items-center" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        {% if user_info and user_info.face %}
+                        <img src="{% static user_info.face %}" alt="头像" class="rounded-circle me-2" width="30" height="30">
+                        {% else %}
+                        <img src="https://via.placeholder.com/30" alt="头像" class="rounded-circle me-2" width="30" height="30">
+                        {% endif %}
+                        <span class="text-light">
+                            {% if user_info and user_info.username %}
+                            {{ user_info.username }}
+                            {% else %}
+                            Guest
+                            {% endif %}
+                        </span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark mt-2" aria-labelledby="userDropdown">
+                        <li><a class="dropdown-item" href="/myapp/user_view/"><i class="bi bi-person"></i> 个人资料</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="bi bi-gear"></i> 设置</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/myapp/logout/"><i class="bi bi-box-arrow-right"></i> 退出</a></li>
+                    </ul>
+                </li>
+            </ul>            
+    </header>
+    
+    
+<div class="container-fluid">
+    <div class="row">
+        <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+            <div class="position-sticky pt-3 sidebar-sticky">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/myapp/index/' %}active{% endif %}" href="/myapp/index/">
+                            <i class="bi bi-house-door-fill"></i>
+                            首页
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/myapp/list/' %}active{% endif %}" href="/myapp/list/">
+                            <i class="bi bi-basket-fill"></i>
+                            美食列表
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/myapp/analysis/' %}active{% endif %}" href="/myapp/analysis/">
+                            <i class="bi bi-bar-chart-fill"></i>
+                            数据分析
+                        </a>
+                    </li>
+                <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/myapp/recommend/' %}active{% endif %}" href="/myapp/recommend/">
+                            <i class="bi bi-bar-chart-fill"></i>
+                            美食推荐
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/myapp/user_view/' or request.path == '/myapp/user/my_favorites/' %}active{% endif %}" data-bs-toggle="collapse" href="#userCenter" role="button" aria-expanded="true" aria-controls="userCenter">
+                            <i class="bi bi-person-fill"></i>
+                            个人中心
+                        </a>
+                        <!-- 个人中心的副标题部分，保持展开 -->
+                        <ul class="collapse {% if request.path == '/myapp/user_view/' or request.path == '/myapp/favorite/' %}show{% endif %}" id="userCenter" style="list-style-type: none;">
+                            <li class="nav-item">
+                                <a class="nav-link" href="/myapp/user_view/">
+                                    <i class="bi bi-info-circle-fill"></i>
+                                    个人信息
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/myapp/favorite/">
+                                    <i class="bi bi-heart-fill"></i>
+                                    我的收藏
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+
+
+            </div>
+        </nav>
+
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+          {% block content %}
+          <!-- 这里将动态加载内容 -->
+          {% endblock %}
+        </main>
+    </div>
+</div>
+
+<div class="modal fade" id="personalCenterModal" tabindex="-1" aria-labelledby="personalCenterModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="personalCenterModalLabel">个人中心</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {% block info %}
+                <!-- 这里可以插入个人中心的动态内容 -->
+                {% endblock %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'js/layout.js' %}"></script>
+<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+</body>
+</html>

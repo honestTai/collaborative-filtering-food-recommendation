@@ -1,0 +1,94 @@
+{% extends 'layout.html' %}
+{% block content %}
+{% load static %}
+<link href="{% static 'css/food-list.css' %}" rel="stylesheet"> <!-- 自定义样式 -->
+
+<main>
+    <section class="py-5 text-center container-fluid bg-custom">
+        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.5);"></div> <!-- 添加背景透明度 -->
+        <div class="row py-lg-5" style="position: relative; z-index: 1;">
+            <div class="col-lg-6 col-md-8 mx-auto">
+                <h1 class="fw-light" style="color: white; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);">菜品搜索</h1> <!-- 添加文本阴影 -->
+                <p class="lead" style="color: rgba(255, 255, 255, 0.9); text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);">下面是含有您搜索关键词的美食。</p> <!-- 提高副标题可读性 -->
+            </div>
+        </div>
+    </section>
+          
+    <div class="album py-5 bg-light">
+        <div class="container-fluid">
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-3">
+                {% for food in page_obj %}
+                <div class="col">
+                    <!-- 使用 URL 模板标签生成详情页链接 -->
+                    <a href="{% url 'myapp_fooddetail' food.id %}" class="text-decoration-none" style="color: black;">
+                        <div class="card shadow-sm h-100 hover-effect">
+                            <img src="{{ food.imgurl }}" class="bd-placeholder-img card-img-top rounded" width="100%" height="225" alt="{{ food.foodname }}" preserveAspectRatio="xMidYMid slice" focusable="false">
+                            <div class="card-body">
+                                <p class="card-text text-truncate" style="max-height: 3em; overflow: hidden;">{{ food.recommend|default:"推荐菜品" }}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary">查看</button>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- 分页导航 -->
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}&search={{ request.GET.search }}">上一页</a>
+            </li>
+            {% endif %}
+    
+            {% comment %} 定义要显示的最大页码数量 {% endcomment %}
+            {% with max_visible_pages=5 %}
+                {% if page_obj.paginator.num_pages > max_visible_pages %}
+                    {% comment %} 计算当前页的起始和结束页码 {% endcomment %}
+                    {% if page_obj.number > 3 %}
+                        <li class="page-item"><a class="page-link" href="?page=1&search={{ request.GET.search }}">1</a></li>
+                        {% if page_obj.number > 4 %}
+                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                        {% endif %}
+                    {% endif %}
+    
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if num >= page_obj.number|add:-2 and num <= page_obj.number|add:2 %}
+                            <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                                <a class="page-link" href="?page={{ num }}&search={{ request.GET.search }}">{{ num }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+    
+                    {% if page_obj.number < page_obj.paginator.num_pages|add:-2 %}
+                        {% if page_obj.number < page_obj.paginator.num_pages|add:-3 %}
+                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                        {% endif %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}&search={{ request.GET.search }}">{{ page_obj.paginator.num_pages }}</a>
+                        </li>
+                    {% endif %}
+                {% else %}
+                    {% for num in page_obj.paginator.page_range %}
+                        <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                            <a class="page-link" href="?page={{ num }}&search={{ request.GET.search }}">{{ num }}</a>
+                        </li>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+    
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}&search={{ request.GET.search }}">下一页</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    
+</main>
+{% endblock %}

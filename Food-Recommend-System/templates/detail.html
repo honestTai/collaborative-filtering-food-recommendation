@@ -1,0 +1,188 @@
+{% extends 'layout.html' %}
+{% block content %}
+{% load static %}
+<link href="{% static 'css/detail.css' %}" rel="stylesheet"> <!-- 自定义样式 -->
+<div class="container-fluid my-5">
+    <!-- 美食详情部分 -->
+    <div class="row mb-4 justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow border-0 d-flex flex-row">
+                <!-- 图片部分 -->
+                <div class="flex-shrink-0" style="width: 50%;">
+                    <img src="{{ foodinfo.imgurl }}" alt="{{ foodinfo.foodname }}" class="img-fluid rounded-start h-100" style="object-fit: cover;">
+                </div>
+                <!-- 描述部分 -->
+                <div class="card-body flex-grow-1">
+                    <h2 class="card-title">{{ foodinfo.foodname }}</h2>
+                    <p class="card-text"><strong>价格：</strong><span class="text-danger">{{ foodinfo.price }}元</span></p>
+                    <p class="card-text"><strong>类型：</strong>{{ foodinfo.foodtype }}</p>
+                    <p class="card-text">{{ foodinfo.recommend }}</p>
+
+                <!-- 收藏按钮 -->
+                <button class="btn {% if is_wishlist %}btn-danger{% else %}btn-outline-danger{% endif %} wishlist-btn" 
+                        data-food-id="{{ foodinfo.id }}" 
+                        onclick="toggleWishlist(this)">
+                    <i class="bi {% if is_wishlist %}bi-heart-fill{% else %}bi-heart{% endif %} me-2"></i> 
+                    {% if is_wishlist %}已收藏{% else %}加入收藏{% endif %}
+                </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 评论部分 -->
+    <div class="row mt-5 justify-content-center">
+        <div class="col-lg-10">
+            <h3 class="mb-3">用户评论</h3>
+            <div class="card shadow border-0 mb-3">
+                <ul class="list-group list-group-flush" id="comment-list">
+                    {% for comment in commentlist %}
+                        <li class="list-group-item">
+                            <p><strong>{{ comment.realname }}:</strong> {{ comment.content }}</p>
+                            <small class="text-muted">{{ comment.ctime|date:"Y年n月j日 H时i分" }}</small>  <!-- 显示格式化后的时间 -->
+                        </li>
+                    {% empty %}
+                        <li class="list-group-item text-muted">暂无评论</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- 添加分页控件 -->
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    {% if commentlist.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ commentlist.previous_page_number }}" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                    
+                    {% with page_range=commentlist.paginator.page_range %}
+                        {% if commentlist.number > 3 %}
+                            <li class="page-item"><a class="page-link" href="?page=1">1</a></li>
+                            {% if commentlist.number > 4 %}
+                                <li class="page-item disabled"><span class="page-link">...</span></li>
+                            {% endif %}
+                        {% endif %}
+                        
+                        {% for i in page_range %}
+                            {% if i >= commentlist.number|add:-2 and i <= commentlist.number|add:2 %}
+                                {% if commentlist.number == i %}
+                                    <li class="page-item active" aria-current="page">
+                                        <span class="page-link">{{ i }}</span>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+            
+                        {% if commentlist.number < commentlist.paginator.num_pages|add:-3 %}
+                            {% if commentlist.number < commentlist.paginator.num_pages|add:-4 %}
+                                <li class="page-item disabled"><span class="page-link">...</span></li>
+                            {% endif %}
+                            <li class="page-item"><a class="page-link" href="?page={{ commentlist.paginator.num_pages }}">{{ commentlist.paginator.num_pages }}</a></li>
+                        {% endif %}
+                    {% endwith %}
+            
+                    {% if commentlist.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ commentlist.next_page_number }}" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            
+
+            <!-- 添加评论表单 -->
+            <div class="add-comment p-3 border rounded shadow-sm">
+                <h5>添加评论</h5>
+                <form id="comment-form">
+                    {% csrf_token %}
+                    <input type="text" name="realname" class="form-control mb-2" placeholder="输入你的真实姓名（可选）">
+                    <div class="mb-3">
+                        <textarea name="comment" class="form-control" rows="3" placeholder="输入你的评论..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-send me-1"></i> 提交评论
+                    </button>
+                </form>
+                <div id="message" class="mt-2"></div> <!-- 用于显示提交消息 -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleWishlist(button) {
+        const foodId = button.getAttribute('data-food-id');
+        const isAdding = button.classList.contains('btn-outline-danger'); // 检查当前按钮状态
+    
+        // 根据状态选择正确的 URL 和方法
+        const url = isAdding ? `/myapp/add_to_wishlist/${foodId}/` : `/myapp/remove_from_wishlist/${foodId}/`;
+    
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}', // 设置CSRF令牌
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message); // 显示响应消息
+    
+            // 根据响应结果更新按钮状态
+            if (data.success) {
+                if (isAdding) {
+                    button.classList.remove('btn-outline-danger');
+                    button.classList.add('btn-danger');
+                    button.innerHTML = '<i class="bi bi-heart-fill me-2"></i> 已收藏';
+                } else {
+                    button.classList.remove('btn-danger');
+                    button.classList.add('btn-outline-danger');
+                    button.innerHTML = '<i class="bi bi-heart me-2"></i> 加入收藏';
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+
+    document.getElementById('comment-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const foodId = {{ foodinfo.id }};  // 当前菜品ID
+        fetch(`/myapp/add_comment/${foodId}/`, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}' // 设置csrf_token
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            if (data.success) {
+                // 添加新评论到评论列表
+                const commentList = document.getElementById('comment-list');
+                const newComment = document.createElement('li');
+                newComment.className = 'list-group-item';
+                newComment.innerHTML = `<p><strong>${data.comment.realname}:</strong> ${data.comment.content}</p><small class="text-muted">${data.comment.ctime}</small>`;
+                commentList.appendChild(newComment);
+                this.reset(); // 重置表单
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    });
+    </script>
+{% endblock %}

@@ -1,0 +1,17 @@
+@startuml
+actor User
+entity "Django 应用" as App
+entity "数据库" as DB
+
+User -> App : 发起请求 (添加到心愿单)
+App -> App : 获取 session 中的 user_id
+alt 用户未登录
+    App -> User : 返回提示消息（请先登录）
+else 用户已登录
+    App -> DB : 获取食物对象 (foodid)
+    DB -> App : 返回食物对象
+    App -> DB : 创建心愿单项 (user_id, food)
+    DB -> App : 返回创建结果
+    App -> User : 返回成功消息
+end
+@enduml

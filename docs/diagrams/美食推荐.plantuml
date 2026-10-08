@@ -1,0 +1,19 @@
+@startuml
+actor User
+entity "Django 应用" as System
+entity "数据库" as DB
+
+User -> System : 用户登录
+System -> DB : 获取用户历史行为数据 (收藏, 评论, 浏览)
+DB -> System : 返回用户历史数据
+System -> System : 数据预处理
+System -> System : 构建美食特征向量
+System -> System : 计算美食之间的相似度
+System -> DB : 获取菜品详细信息
+DB -> System : 返回所有美食信息
+System -> System : 基于用户行为计算菜品相似度
+System -> User : 返回推荐的美食列表
+System -> DB : 更新用户行为数据 (收藏, 评论)
+DB -> System : 更新数据库中的行为数据
+System -> System : 更新推荐模型
+@enduml

@@ -1,0 +1,20 @@
+@startuml
+actor User
+entity "数据分析脚本" as Crawler
+entity "数据库" as DB
+entity "CSV 文件" as CSV
+
+User -> Crawler : 运行脚本
+Crawler -> CSV : 读取 CSV 文件
+CSV -> Crawler : 返回数据
+Crawler -> Crawler : 处理文本，去除停用词
+Crawler -> Crawler : 进行文本分词
+Crawler -> DB : 清空表数据
+DB -> Crawler : 返回清空结果
+Crawler -> Crawler : 统计分析文本
+Crawler -> DB : 插入词频数据
+DB -> Crawler : 返回插入结果
+Crawler -> DB : 插入统计数据
+DB -> Crawler : 返回插入结果
+Crawler -> User : 数据分析完成
+@enduml
